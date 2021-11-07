@@ -25,14 +25,13 @@
             :key="col"
             :id="spots[rowIndex][col - 1].id"
             :status="spots[rowIndex][col - 1].status"
-            @shoot-to="onShoot"
+            @shot-to="onShot"
           />
         </v-row>
       </template>
     </v-container>
     <v-snackbar
       v-model="openSnackbar"
-      top
       :color="snackBarColor"
       timeout="1000"
       rounded="pill"
@@ -58,19 +57,18 @@ export default {
   data: () => ({
     rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
     selected: [],
-    spotsWithStatus: {},
     spots: [],
     shipsCounter: [],
-    text: 'shoot',
+    text: 'shot',
     openSnackbar: false,
     snackBarColor: 'gray',
+    hits: 0,
   }),
   created() {
     this.rows.forEach((row, rowIndex) => {
       this.spots.push(new Array(9))
       for (let index = 0; index < 10; index++) {
         const id = `${row}-${index + 1}`
-        this.spotsWithStatus[id] = spotStatus.UNDISCOVER
         this.spots[rowIndex][index] = {
           status: spotStatus.EMPTY,
           id,
@@ -80,31 +78,52 @@ export default {
     this.setShips()
   },
   methods: {
-    onShoot(id, text) {
-      if (this.selected.find((pair) => pair === id)) console.log(id)
-      else {
-        this.selected.push(id)
-        console.log('push', id, this.selected)
-      }
+    onShot(id, text) {
+      this.selected.push(id)
       this.snackBarColor = text.toLowerCase().includes('miss') ? 'gray' : 'red'
       this.text = text
       this.openSnackbar = true
+      this.$emit('shot')
+      if (text === 'Hit!!') {
+        this.hits++
+        this.countShip(id)
+      }
+      if (this.hits >= 20) this.$emit('win')
+    },
+    countShip(id) {
+      this.shipsCounter.map((ship) => {
+        if (ship.position.includes(id)) ship.finded.push(id)
+        if (ship.finded.length === ship.size && !ship.sunk) {
+          this.$emit('ship-sinking', ship)
+          ship.sunk = true
+        }
+        return ship
+      })
     },
     setShips() {
-      ships.forEach((ship) => {
-        const startX = Math.floor(Math.random() * 10)
-        const startY = Math.floor(Math.random() * 10)
-        const positions = this.getAvailablePositions(startX, startY, ship.size)
-        const randomDirection = Math.round(
-          Math.random() * (positions.length - 1),
-        )
-        const position = positions[randomDirection]
-        position.forEach((spot) => {
-          this.spots[spot[0]][spot[1]].status = spotStatus.SHIP
-          console.log(spot)
-        })
-        console.log(position)
+      ships.forEach((ship, index) => {
+        this.generateShip(ship, index)
       })
+    },
+    generateShip(ship, index) {
+      const startX = Math.floor(Math.random() * 10)
+      const startY = Math.floor(Math.random() * 10)
+      if (this.spots[startX][startY].status !== spotStatus.SHIP) {
+        const positions = this.getAvailablePositions(startX, startY, ship.size)
+        if (positions.length > 0) {
+          this.shipsCounter.push({ ...ship, position: [], finded: [] })
+          const randomDirection = Math.round(
+            Math.random() * (positions.length - 1),
+          )
+          const position = positions[randomDirection]
+          position.forEach((spot) => {
+            this.spots[spot[0]][spot[1]].status = spotStatus.SHIP
+            this.shipsCounter[index].position.push(
+              this.spots[spot[0]][spot[1]].id,
+            )
+          })
+        } else this.generateShip(ship, index)
+      } else this.generateShip(ship, index)
     },
     getAvailablePositions(x, y, size) {
       const directions = [
@@ -133,14 +152,6 @@ export default {
         if (validDirection) available.push(positions)
       })
       return available
-    },
-    checkOutBoard(direction) {
-      let isOutBoard = false
-      direction.forEach((pos) => {
-        if (pos[0] > 9 || pos[1] > 9 || pos[0] < 0 || pos[1] < 0)
-          isOutBoard = true
-      })
-      return isOutBoard
     },
   },
 }
