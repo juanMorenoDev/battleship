@@ -5,7 +5,7 @@
     :items-per-page="5"
     class="elevation-1"
     ><template #[`item.isWin`]="{ item }">
-      {{ item.isWin ? 'win' : 'lose' }}
+      {{ item.isWin ? 'won' : 'lost' }}
     </template></v-data-table
   >
 </template>

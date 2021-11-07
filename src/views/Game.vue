@@ -11,7 +11,7 @@
         />
       </v-col>
       <v-col cols="12" sm="3">
-        <DrownedShips :ships="drownedShips" />
+        <DrownedShips :ships-drowned="drownedIds" />
       </v-col>
       <v-dialog
         v-model="isDialogOpen"
@@ -50,12 +50,12 @@ export default {
     shots: 0,
     isDialogOpen: false,
     dialogText: '',
-    drownedShips: [],
+    drownedIds: [],
     restartKey: 0,
   }),
   beforeRouteLeave(to, from, next) {
     const answer = window.confirm(
-      'Do you really want to leave? you have unsaved changes!',
+      'Do you really want to leave? your game stills in progress!',
     )
     if (answer) {
       next()
@@ -66,14 +66,14 @@ export default {
   methods: {
     ...mapActions({ saveGame: 'SAVE_GAME' }),
     onShipSink(ship) {
-      this.drownedShips.push(ship)
+      this.drownedIds.push(ship.id)
     },
     onShotCount() {
       this.shots++
     },
     onTryAgain() {
       this.isDialogOpen = false
-      this.drownedShips = []
+      this.drownedIds = []
       this.shots = 0
       this.restartKey++
     },
@@ -84,18 +84,18 @@ export default {
         name: this.$route.params.name,
         difficulty: this.$route.params.shots,
         shotsUsed: this.shots,
-        drownedShips: this.drownedShips.length,
+        drownedShips: this.drownedIds.length,
         isWin: false,
       })
     },
     onWin() {
       this.isDialogOpen = true
-      this.dialogText = 'Congratulations!!!'
+      this.dialogText = 'Congratulations! You win the game'
       this.saveGame({
         name: this.$route.params.name,
         difficulty: this.$route.params.shots,
         shotsUsed: this.shots,
-        drownedShips: this.drownedShips.length,
+        drownedShips: this.drownedIds.length,
         isWin: true,
       })
     },

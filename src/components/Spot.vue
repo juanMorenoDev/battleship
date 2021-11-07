@@ -1,7 +1,7 @@
 <template>
   <v-col
     cols="1"
-    class="board-cell pa-0 d-flex"
+    class="spot pa-0 d-flex"
     :class="shotClass"
     @click="onClickCell(id)"
   ></v-col>
@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style scoped>
-.board-cell {
+.spot {
   background: lightblue;
   border-right: solid 1px blue;
   border-bottom: solid 1px blue;
