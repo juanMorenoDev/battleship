@@ -3,6 +3,7 @@
     <v-app-bar app color="primary" dark>
       <div class="text-h3" @click="goHome">Battleship</div>
       <v-spacer></v-spacer>
+      <v-btn text to="/instructions">how to play?</v-btn>
       <v-btn
         v-if="$route.name === 'Game'"
         icon
