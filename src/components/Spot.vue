@@ -1,30 +1,44 @@
 <template>
   <v-col
     cols="1"
-    class="hover-cell board-cell pa-0 d-flex"
+    class="board-cell pa-0 d-flex"
+    :class="shootClass"
     @click="onClickCell(id)"
   ></v-col>
 </template>
 
 <script>
+import spotStatus from '@/const/spotStatus'
+
 export default {
-  name: 'BattleBoard',
+  name: 'Spot',
   props: {
     id: {
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      required: true,
+      validator: (value) => {
+        return Object.values(spotStatus).indexOf(value) !== -1
+      },
+    },
   },
   data: () => ({
-    rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
-    selected: [],
+    shootClass: 'selectionable',
   }),
   methods: {
     onClickCell(id) {
-      if (this.selected.find((pair) => pair === id)) console.log(id)
-      else {
-        this.selected.push(id)
-        console.log('push', id, this.selected)
+      if (this.shootClass === 'selectionable') {
+        if (this.status === spotStatus.SHIP) {
+          this.shootClass = 'hit'
+          this.$emit('shootTo', id, 'Hit!!')
+        }
+        if (this.status === spotStatus.EMPTY) {
+          this.shootClass = 'missed'
+          this.$emit('shoot-to', id, 'Miss :(')
+        }
       }
     },
   },
@@ -42,32 +56,16 @@ export default {
   align-content: center;
   justify-content: center;
 }
-.hover-cell:hover {
+.selectionable:hover {
   background: cadetblue;
   cursor: pointer;
-}
-.header-cell {
-  background: none;
-  border: none;
-}
-.column-header {
-  background: none;
-  border-right: none;
-}
-.row-header {
-  background: none;
-  border-bottom: none;
-}
-
-.board {
-  max-width: 700px;
 }
 .hit {
   background: red;
   transition: background-color 1s;
 }
 .missed {
-  background: blue;
+  background: #3da0fd;
   transition: background-color 1s;
 }
 </style>
