@@ -2,7 +2,7 @@
   <v-col
     cols="1"
     class="board-cell pa-0 d-flex"
-    :class="shootClass"
+    :class="shotClass"
     @click="onClickCell(id)"
   ></v-col>
 </template>
@@ -26,18 +26,18 @@ export default {
     },
   },
   data: () => ({
-    shootClass: 'selectionable',
+    shotClass: 'selectionable',
   }),
   methods: {
     onClickCell(id) {
-      if (this.shootClass === 'selectionable') {
+      if (this.shotClass === 'selectionable') {
         if (this.status === spotStatus.SHIP) {
-          this.shootClass = 'hit'
-          this.$emit('shootTo', id, 'Hit!!')
+          this.shotClass = 'hit'
+          this.$emit('shot-to', id, 'Hit!!')
         }
         if (this.status === spotStatus.EMPTY) {
-          this.shootClass = 'missed'
-          this.$emit('shoot-to', id, 'Miss :(')
+          this.shotClass = 'missed'
+          this.$emit('shot-to', id, 'Miss :(')
         }
       }
     },
@@ -67,5 +67,8 @@ export default {
 .missed {
   background: #3da0fd;
   transition: background-color 1s;
+}
+.status {
+  font-size: 6px;
 }
 </style>
